@@ -50,3 +50,10 @@ variable "eks_cluster_version" {
 #   description = "Who can access the public endpoint of the cluster"
 #   type        = list(any)
 # }
+
+### Needed for setting a password for argocd - the password is passed by .tfvars file
+variable "argo_password_hash" {
+  description = "Admin password hash for argocd"
+  type        = string
+  sensitive   = true
+}

@@ -24,8 +24,8 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
 
   # Network configuration
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
   # control_plane_subnet_ids = module.vpc.public_subnets
 
   # EKS Managed Node Group(s)
@@ -62,10 +62,17 @@ module "eks" {
   }
 }
 
+# blocker added for resources which need to wait for the EKS cluster to be ready.
+resource "null_resource" "cluster_blocker" {
+  depends_on = [
+    module.eks
+  ]
+}
+
 resource "null_resource" "configure_kubectl" {
   provisioner "local-exec" {
-    command = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${data.aws_region.current.id}"
-  }
+    command = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${data.aws_region.current.id} --profile terraform"
+  } # hardcodding my local aws profile for ease of use.
 
   depends_on = [module.eks]
 }
